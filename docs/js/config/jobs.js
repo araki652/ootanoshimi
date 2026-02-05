@@ -5,9 +5,8 @@ const jobs = {
         hp: 120, mp: 10, atk: 28, def: 8, matk: 15,
         skills: [
             { name: "通常攻撃", mp: 0, type: "normalAttack", desc: "通常の一撃" },
-            { name: "大斬撃", mp: 0, type: "atkUp", desc: "攻撃力150%で通常攻撃" },
-            { name: "連撃", mp: 6, type: "doubleAtk", desc: "2回攻撃する" },
-            { name: "鉄壁", mp: 5, type: "defense", desc: "防御力UP" }
+            { name: "斬撃", mp: 0, type: "atkUp", desc: "攻撃力110%の剣撃" },
+            { name: "防御", mp: 0, type: "defense", desc: "一時的に防御力UP" }
         ]
     },
     mage: { 
@@ -15,9 +14,8 @@ const jobs = {
         hp: 80, mp: 30, atk: 15, def: 3, matk: 40,
         skills: [
             { name: "通常攻撃", mp: 0, type: "normalAttack", desc: "通常の一撃" },
-            { name: "ファイアボール", mp: 10, type: "fire", desc: "敵に炎のダメージ" },
-            { name: "フリーズ", mp: 8, type: "freeze", desc: "敵を麻痺状態に" },
-            { name: "マナストール", mp: 5, type: "mpRestore", desc: "敵からMP吸収" }
+            { name: "火の矢", mp: 5, type: "fire", desc: "敵に初級火魔法" },
+            { name: "マジックシールド", mp: 3, type: "mpRestore", desc: "MP少量回復" }
         ]
     },
     paladin: { 
@@ -25,9 +23,8 @@ const jobs = {
         hp: 110, mp: 20, atk: 22, def: 12, matk: 20,
         skills: [
             { name: "通常攻撃", mp: 0, type: "normalAttack", desc: "通常の一撃" },
-            { name: "ホーリーシールド", mp: 8, type: "shield", desc: "防御とHP回復" },
-            { name: "聖なる一撃", mp: 10, type: "holyStrike", desc: "攻撃+吸収回復" },
-            { name: "リザレクション", mp: 15, type: "resurrect", desc: "復活と状態異常解除" }
+            { name: "聖剣", mp: 5, type: "shield", desc: "中程度ダメージ+小回復" },
+            { name: "ホーリーライト", mp: 6, type: "holyStrike", desc: "敵にダメージ＆HP回復" }
         ]
     },
     assassin: { 
@@ -35,9 +32,8 @@ const jobs = {
         hp: 85, mp: 8, atk: 35, def: 5, matk: 12,
         skills: [
             { name: "通常攻撃", mp: 0, type: "normalAttack", desc: "通常の一撃" },
-            { name: "急速剣", mp: 3, type: "quickStrike", desc: "素早い連続攻撃" },
-            { name: "影分身", mp: 4, type: "shadowClone", desc: "敵の攻撃を回避" },
-            { name: "致命の一撃", mp: 8, type: "finalBlow", desc: "高クリティカル率" }
+            { name: "素早い斬撃", mp: 2, type: "quickStrike", desc: "速度重視の攻撃" },
+            { name: "回避技", mp: 2, type: "shadowClone", desc: "敵の攻撃を軽減" }
         ]
     },
     bishop: { 
@@ -45,9 +41,8 @@ const jobs = {
         hp: 70, mp: 50, atk: 12, def: 4, matk: 35,
         skills: [
             { name: "通常攻撃", mp: 0, type: "normalAttack", desc: "通常の一撃" },
-            { name: "聖光", mp: 12, type: "holyLight", desc: "攻撃と回復同時" },
-            { name: "祝福", mp: 6, type: "blessing", desc: "全ステ一時UP" },
-            { name: "次元の扉", mp: 15, type: "dimensionDoor", desc: "完全復旧" }
+            { name: "光の祈り", mp: 8, type: "holyLight", desc: "敵にダメージ＆中回復" },
+            { name: "守りの魔法", mp: 4, type: "blessing", desc: "防御力UP" }
         ]
     }
 };
