@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro RPG - Enhanced</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<main id="game-screen">
+    
+    <div id="intro-screen">
+        <h1 style="color:#e74c3c; text-shadow: 2px 2px #fff;">GAME OVER...?</h1>
+        <p style="text-align:center;">
+            あなたはトラックにひかれて<br>死んでしまいました……。
+        </p>
+        <hr>
+        <p style="text-align:center; color:#f1c40f;">
+            「……聞こえますか……。<br>
+            あなたを異世界へ転生させました。<br><br>
+            世界を支配する<span style="color:#e74c3c; font-weight:bold;">『魔王』</span>を倒せば<br>
+            願いを一つ叶えましょう」
+        </p>
+        <div style="margin-top:30px;">
+            <button id="game-start-btn">剣を取り、冒険を始める</button>
+        </div>
+    </div>
+
+    <div id="job-select-screen" style="display:none;">
+        <h1 style="color:#f1c40f; text-shadow: 2px 2px #fff; margin-bottom:20px;">職業を選択</h1>
+        <div id="job-buttons" style="display:flex; flex-direction:column; gap:10px;">
+            <button id="job-warrior" style="background-color:#555; padding:15px; text-align:left;">
+                <div style="font-weight:bold; color:#f1c40f;">戦士</div>
+                <div style="font-size:0.8rem; color:#aaa;">攻撃力が高く、防御も堅い。バランス型</div>
+            </button>
+            <button id="job-mage" style="background-color:#444; padding:15px; text-align:left;">
+                <div style="font-weight:bold; color:#3498db;">魔法使い</div>
+                <div style="font-size:0.8rem; color:#aaa;">魔力に優れ、多彩な魔法を使える。攻撃重視</div>
+            </button>
+            <button id="job-paladin" style="background-color:#444; padding:15px; text-align:left;">
+                <div style="font-weight:bold; color:#2ecc71;">聖騎士</div>
+                <div style="font-size:0.8rem; color:#aaa;">防御力が優れ、回復も得意。防御重視</div>
+            </button>
+            <button id="job-assassin" style="background-color:#444; padding:15px; text-align:left;">
+                <div style="font-weight:bold; color:#e74c3c;">暗殺者</div>
+                <div style="font-size:0.8rem; color:#aaa;">速度が速く、単体への攻撃に特化。速度重視</div>
+            </button>
+            <button id="job-bishop" style="background-color:#444; padding:15px; text-align:left;">
+                <div style="font-weight:bold; color:#9b59b6;">ビショップ</div>
+                <div style="font-size:0.8rem; color:#aaa;">MP超強化で支援に優れた職業。MP重視</div>
+            </button>
+        </div>
+    </div>
+
+    <div id="main-game-interface" style="display:none;">
+        
+        <div id="top-info">
+            <span id="stage-name">ステージ: 迷いの森</span>
+            <span id="gold-display">0 G</span>
+        </div>
+
+        <section class="unit">
+            <h2 id="m-name">モンスター</h2>
+            <div id="monster-party" style="display:none;">
+                <div style="font-size:0.85rem; color:#aaa; margin-bottom:8px;">複数体との戦闘！</div>
+            </div>
+            <progress id="m-hp-bar" value="100" max="100"></progress>
+            <p>
+                HP: <span id="m-hp-now">100</span> / <span id="m-hp-max">100</span>
+            </p>
+        </section>
+
+        <div id="message-log">異世界に降り立った！</div>
+
+        <section class="unit">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <h2 id="p-name" style="margin:0;">勇者</h2>
+                <span style="color:#f1c40f;">Lv.<span id="p-level">1</span></span>
+            </div>
+
+            <div style="margin-top:5px;">
+                <progress id="p-hp-bar" value="100" max="100"></progress>
+                <p style="margin:0;">HP: <span id="p-hp-now">100</span> / <span id="p-hp-max">100</span></p>
+            </div>
+
+            <div style="margin-top:5px;">
+                <progress id="p-mp-bar" value="15" max="15" class="mp-bar"></progress>
+                <p style="margin:0;">MP: <span id="p-mp-now">15</span> / <span id="p-mp-max">15</span></p>
+            </div>
+
+            <p style="color:#aaa; font-size:0.75rem; margin-top:5px;">
+                攻:<span id="p-atk">20</span> 防:<span id="p-def">0</span> / Next: <span id="p-exp-next">20</span>
+            </p>
+        </section>
+
+        <hr>
+
+        <div id="action-area">
+            <button id="atk-btn">物理攻撃</button>
+            <button id="fire-btn" class="magic-btn">魔法(8MP)</button>
+            <button id="heal-btn" class="heal-btn">回復(5MP)</button>
+        </div>
+        
+        <div id="result-area" style="display:none; flex-direction:column; gap:10px;">
+            <button id="next-btn">次の戦いへ</button>
+            <button id="shop-open-btn">装備屋へ行く</button>
+        </div>
+
+        <div id="shop-modal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <h3 style="color:#f1c40f; margin-top:0;">⚔ 装備屋</h3>
+                <div style="text-align:center; margin-bottom:10px;">
+                    <span style="color:#aaa; font-size:0.9rem;" id="job-name-shop">戦士</span>
+                    <span style="color:#f1c40f; font-weight:bold; margin-left:10px;">所持金: <span id="shop-gold">0</span> G</span>
+                </div>
+                <hr>
+                <div style="max-height:300px; overflow-y:auto;">
+                    <div id="shop-items"></div>
+                </div>
+                <hr>
+                <div style="display:flex; gap:5px;">
+                    <button id="shop-close-btn" style="flex:1;">閉じる</button>
+                    <button id="shop-mp-restore-btn" style="flex:1; border-color:#3498db; color:#3498db;">MP回復薬</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- 設定ファイル -->
+<script src="../js/config/jobs.js"></script>
+<script src="../js/config/stages.js"></script>
+<script src="../js/config/shop.js"></script>
+
+<!-- クラス定義 -->
+<script src="../js/player/player.js"></script>
+<script src="../js/enemy/enemy.js"></script>
+<script src="../js/battle/battle.js"></script>
+<script src="../js/game/game-manager.js"></script>
+<script src="../js/status/status-manager.js"></script>
+<script src="../js/status/shop-system.js"></script>
+<script src="../js/utils/ui-updater.js"></script>
+
+<!-- メインゲームスクリプト -->
+<script src="../js/script.js"></script>
+</body>
+</html>
