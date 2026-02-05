@@ -36,10 +36,11 @@ class GameManager {
     // ステージクリア処理
     clearStage() {
         this.stageKillCount = 0;
-        this.currentStageIndex++;
-        if (this.currentStageIndex >= stages.length) {
-            this.currentStageIndex = 0;
-        }
+        // ステージインデックスは呼び出し元で管理するので、ここでは進めない
+        // this.currentStageIndex++;
+        // if (this.currentStageIndex >= stages.length) {
+        //     this.currentStageIndex = 0;
+        // }
         this.resetMonsterState();
     }
 
@@ -62,13 +63,13 @@ class GameManager {
     }
 
     // 敵パーティを生成
-    generateEnemyParty(baseEnemy, stage) {
+    generateEnemyParty(baseEnemy, stage, difficulty = 'normal') {
         const additionalCount = Math.floor(Math.random() * 3) + 1; // 1～3体追加
         const party = [];
         
         for (let i = 0; i < additionalCount; i++) {
             const selectedEnemy = Enemy.selectRandom(stage.enemies);
-            party.push(selectedEnemy);
+            party.push(new Enemy(selectedEnemy, difficulty));
         }
         
         return party;

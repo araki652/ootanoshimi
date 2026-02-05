@@ -14,6 +14,7 @@ window.onload = function() {
     // --- DOM要素 ---
     const introScreen = document.getElementById("intro-screen");
     const jobSelectScreen = document.getElementById("job-select-screen");
+    const difficultySelectScreen = document.getElementById("difficulty-select-screen");
     const mainGameInterface = document.getElementById("main-game-interface");
 
     const actionArea = document.getElementById("action-area");
@@ -21,8 +22,10 @@ window.onload = function() {
     const atkBtn = document.getElementById("atk-btn");
     const fireBtn = document.getElementById("fire-btn");
     const healBtn = document.getElementById("heal-btn");
+    const skilltreeBtn = document.getElementById("skilltree-btn");
     const nextBtn = document.getElementById("next-btn");
     const gameStartBtn = document.getElementById("game-start-btn");
+    const continueBtn = document.getElementById("continue-btn");
 
     const shopOpenBtn = document.getElementById("shop-open-btn");
     const shopCloseBtn = document.getElementById("shop-close-btn");
@@ -30,6 +33,26 @@ window.onload = function() {
     const shopItemsContainer = document.getElementById("shop-items");
     const shopGoldLabel = document.getElementById("shop-gold");
     const shopMpRestoreBtn = document.getElementById("shop-mp-restore-btn");
+
+    const skilltreeModal = document.getElementById("skilltree-modal");
+    const skilltreeCloseBtn = document.getElementById("skilltree-close-btn");
+
+    // --- コンテニュー機能 ---
+    if (Player.hasSaveData()) {
+        continueBtn.style.display = "block";
+        continueBtn.addEventListener("click", () => {
+            player.loadGameData();
+            currentJob = jobs[player.job];
+            statusManager.recalculateStats();
+            gameManager.currentStageIndex = player.currentStageIndex;
+            gameManager.stageKillCount = player.stageKillCount;
+            
+            introScreen.style.display = "none";
+            mainGameInterface.style.display = "block";
+            gameManager.isGameRunning = true;
+            encountEnemy();
+        });
+    }
 
     // --- ゲーム開始 ---
     gameStartBtn.addEventListener("click", () => {
@@ -50,6 +73,17 @@ window.onload = function() {
         statusManager.recalculateStats();
         
         jobSelectScreen.style.display = "none";
+        difficultySelectScreen.style.display = "block";
+    }
+
+    // 難易度選択
+    document.getElementById("difficulty-easy").addEventListener("click", () => selectDifficulty("easy"));
+    document.getElementById("difficulty-normal").addEventListener("click", () => selectDifficulty("normal"));
+    document.getElementById("difficulty-hard").addEventListener("click", () => selectDifficulty("hard"));
+
+    function selectDifficulty(difficulty) {
+        player.setDifficulty(difficulty);
+        difficultySelectScreen.style.display = "none";
         mainGameInterface.style.display = "block";
         gameManager.startGame();
         encountEnemy();
@@ -57,34 +91,51 @@ window.onload = function() {
 
     // --- 敵出現 ---
     function encountEnemy() {
+        // ステージインデックスが範囲外の場合はリセット
+        if (gameManager.currentStageIndex >= stages.length) {
+            gameManager.currentStageIndex = stages.length - 1;
+        }
+        
         const stage = gameManager.getCurrentStage();
+        console.log(`[敵出現] ステージ: ${stage.name} (Index: ${gameManager.currentStageIndex}), killCount: ${gameManager.stageKillCount}/${stage.reqKills}`);
         uiUpdater.updateStageName(stage.name);
 
         gameManager.resetMonsterState();
 
+        // 現在のステージ情報を保存
+        player.currentStageIndex = gameManager.currentStageIndex;
+        player.stageKillCount = gameManager.stageKillCount;
+        player.saveGameData();
+
         // ボス戦か判定
         if (gameManager.shouldFightBoss()) {
+            console.log(`[ボス判定] shouldFightBoss = true`);
             if (gameManager.checkBossSpawn()) {
                 // ボス戦
-                gameManager.currentMonster = new Enemy(stage.boss);
+                gameManager.currentMonster = new Enemy(stage.boss, player.difficulty);
                 gameManager.monsterParty = [];
                 gameManager.isMultiMonsterBattle = false;
                 uiUpdater.setLog(`⚠ ${stage.boss.name} (BOSS) があらわれた！`);
                 uiUpdater.applyBossName();
-                uiUpdater.setSkillButtons(atkBtn, fireBtn, healBtn, currentJob);
+                uiUpdater.setSkillButtons(atkBtn, fireBtn, healBtn, currentJob, player);
             } else {
                 // 通常敵
+                console.log(`[ボス判定] ボス出現抽選失敗`);
                 encountNormalEnemy(stage);
             }
         }
         // 謎解きモード判定
         else if (gameManager.checkPuzzleMode()) {
+            console.log(`[謎解き判定] startPuzzle`);
             startPuzzle();
             return;
         }
         // 通常敵出現
         else if (gameManager.shouldEncounterNewEnemy()) {
+            console.log(`[通常敵判定] shouldEncounterNewEnemy = true`);
             encountNormalEnemy(stage);
+        } else {
+            console.log(`[警告] 敵が出現していません - stageIndex: ${gameManager.currentStageIndex}, killCount: ${gameManager.stageKillCount}`);
         }
 
         uiUpdater.updateAll(player, statusManager, gameManager.currentMonster, gameManager);
@@ -92,22 +143,22 @@ window.onload = function() {
 
     function encountNormalEnemy(stage) {
         const selectedEnemy = Enemy.selectRandom(stage.enemies);
-        gameManager.currentMonster = selectedEnemy;
+        gameManager.currentMonster = new Enemy(selectedEnemy, player.difficulty);
 
         // 複数体出現イベント
         if (gameManager.checkMultiEnemyEvent()) {
             gameManager.isMultiMonsterBattle = true;
-            gameManager.monsterParty = gameManager.generateEnemyParty(selectedEnemy, stage);
-            uiUpdater.setLog(`${selectedEnemy.name} と仲間たちがあらわれた！`);
+            gameManager.monsterParty = gameManager.generateEnemyParty(stage.enemies, stage, player.difficulty);
+            uiUpdater.setLog(`${gameManager.currentMonster.name} と仲間たちがあらわれた！`);
         } else {
             gameManager.isMultiMonsterBattle = false;
             gameManager.monsterParty = [];
-            uiUpdater.setLog(`${selectedEnemy.name} があらわれた！`);
+            uiUpdater.setLog(`${gameManager.currentMonster.name} があらわれた！`);
         }
 
         uiUpdater.clearNameClass();
-        if (selectedEnemy.type === 'rare') uiUpdater.applyRareName();
-        uiUpdater.setSkillButtons(atkBtn, fireBtn, healBtn, currentJob);
+        if (gameManager.currentMonster.type === 'rare') uiUpdater.applyRareName();
+        uiUpdater.setSkillButtons(atkBtn, fireBtn, healBtn, currentJob, player);
     }
 
     // --- 謎解き処理 ---
@@ -185,6 +236,7 @@ window.onload = function() {
             if (statusManager.canLevelUp()) {
                 player.levelUp(player.job);
                 msg += `\n【祝】レベルアップ！ Lv${player.level} になった！`;
+                player.saveGameData();
             }
 
             // 複数体戦闘処理
@@ -208,10 +260,17 @@ window.onload = function() {
                 if (gameManager.isFinalBoss()) {
                     msg += `\n全ての戦いが終わった…。\n魔王は崩れ去り、光が世界を包む。\n(THE END)`;
                     gameManager.currentStageIndex = 0;
+                    gameManager.stageKillCount = 0;
+                    player.currentStageIndex = 0;
+                    player.stageKillCount = 0;
                     player.consecutiveWins = 0;
                 } else {
                     msg += `\n=== ステージクリア！ ===\n次のエリアへ進みます。`;
-                    gameManager.clearStage();
+                    // ボス倒却でステージを進める
+                    gameManager.currentStageIndex++;
+                    gameManager.stageKillCount = 0;
+                    player.currentStageIndex = gameManager.currentStageIndex;
+                    player.stageKillCount = 0;
                     player.consecutiveWins++;
                 }
             } else {
@@ -251,14 +310,58 @@ window.onload = function() {
                 : `● 敗北…\n${result.message}`;
             
             uiUpdater.setLog(message);
+            if (result.isFullLost) {
+                // 完全敗北：ゲームオーバー
+                Player.clearSaveData();
+                // ゲーム状態をリセット
+                gameManager.currentStageIndex = 0;
+                gameManager.stageKillCount = 0;
+            } else {
+                // 単なる敗北：ステージの最初からコンテニュー
+                // gameManagerもステージの最初にリセット
+                gameManager.stageKillCount = 0;
+                player.currentStageIndex = gameManager.currentStageIndex;
+                player.stageKillCount = 0;
+                player.saveGameData();
+            }
             return true;
         }
+        // 勝利時もセーブ
+        player.currentStageIndex = gameManager.currentStageIndex;
+        player.stageKillCount = gameManager.stageKillCount;
+        player.saveGameData();
         return false;
     }
 
     // --- スキル実行 ---
     function executeSkill(skillIndex) {
-        const skill = currentJob.skills[skillIndex];
+        let skill;
+        
+        // activeSkills から習得スキルを取得
+        const activeSkillId = player.activeSkills && player.activeSkills[skillIndex];
+        if (activeSkillId) {
+            // 習得スキルID から skilltree の情報を取得
+            const tree = skillTreeConfig[player.job];
+            if (tree) {
+                const node = tree.nodes.find(n => n.id === activeSkillId);
+                if (node) {
+                    skill = {
+                        name: node.name,
+                        mp: node.mp,
+                        type: node.type,
+                        desc: node.desc
+                    };
+                } else {
+                    // フォールバック：職業のデフォルトスキル
+                    skill = currentJob.skills[skillIndex];
+                }
+            } else {
+                skill = currentJob.skills[skillIndex];
+            }
+        } else {
+            // activeSkills がなければ職業のデフォルトスキルを使用
+            skill = currentJob.skills[skillIndex];
+        }
         
         if (player.mp < skill.mp) {
             uiUpdater.setLog("MPが足りない！");
@@ -384,10 +487,32 @@ window.onload = function() {
     });
 
     nextBtn.addEventListener("click", () => {
-        resultArea.style.display = "none";
-        actionArea.style.display = "flex";
-        encountEnemy();
-        enableButtons();
+        console.log(`[nextBtn] currentMonster: ${gameManager.currentMonster?.name}, isBoss: ${gameManager.currentMonster?.isBoss}`);
+        
+        // ボス倒却後かつファイナルボスの場合のみゲーム終了
+        if (gameManager.currentMonster && gameManager.currentMonster.isBoss && gameManager.isFinalBoss()) {
+            console.log(`[nextBtn] ファイナルボス倒却 - ゲーム終了`);
+            // ゲーム終了
+            introScreen.style.display = "flex";
+            mainGameInterface.style.display = "none";
+            Player.clearSaveData();
+            location.reload();
+        } else {
+            console.log(`[nextBtn] 通常の次へ進む処理`);
+            // 通常の次へ進むボタン処理
+            resultArea.style.display = "none";
+            actionArea.style.display = "flex";
+            
+            // 敵状態を完全にリセット
+            gameManager.currentMonster = null;
+            gameManager.monsterParty = [];
+            gameManager.isMultiMonsterBattle = false;
+            
+            console.log(`[nextBtn] encountEnemy前: stageIndex=${gameManager.currentStageIndex}, killCount=${gameManager.stageKillCount}`);
+            // 新しい敵を出現させる
+            encountEnemy();
+            enableButtons();
+        }
     });
 
     // --- ショップシステム ---
@@ -428,6 +553,7 @@ window.onload = function() {
                     if (result.success) {
                         statusManager.recalculateStats();
                         uiUpdater.updatePlayerStatus(player, statusManager);
+                        player.saveGameData();
                         renderShop();
                     }
                 };
@@ -455,5 +581,23 @@ window.onload = function() {
             uiUpdater.updatePlayerStatus(player, statusManager);
             renderShop();
         }
+    });
+
+    // スキルツリーボタン
+    skilltreeBtn.addEventListener("click", () => {
+        const jobKey = player.job;
+        if (jobKey) {
+            uiUpdater.renderSkillTree(player, jobKey);
+            skilltreeModal.style.display = "flex";
+            disableButtons();
+        }
+    });
+
+    skilltreeCloseBtn.addEventListener("click", () => {
+        skilltreeModal.style.display = "none";
+        player.saveGameData(); // スキルツリーでの変更を保存
+        uiUpdater.updatePlayerStatus(player, statusManager);
+        uiUpdater.setSkillButtons(atkBtn, fireBtn, healBtn, currentJob, player);
+        enableButtons();
     });
 };

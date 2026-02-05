@@ -9,7 +9,7 @@ const stages = [
             { name: "人食い草", maxHp: 100, atk: 20, def: 0, mdef: 20, exp: 18, gold: 15, rate: 15 },
             { name: "ゴールデンスライム", maxHp: 30, atk: 5, def: 20, mdef: 20, exp: 200, gold: 200, rate: 5, type: 'rare', dropItems: ['dws1'] }
         ],
-        boss: { name: "大トレント", maxHp: 300, atk: 30, def: 10, mdef: 5, exp: 100, gold: 100, type: 'boss', dropItems: ['dws1'] }
+        boss: { name: "大トレント", maxHp: 300, atk: 30, def: 10, mdef: 5, exp: 100, gold: 100, type: 'boss', isBoss: true, dropItems: ['dws1'] }
     },
     {
         name: "静寂の湖畔",
@@ -21,7 +21,7 @@ const stages = [
             { name: "セイレーン", maxHp: 80, atk: 20, def: 5, mdef: 40, exp: 28, gold: 30, rate: 20 },
             { name: "水竜の幼体", maxHp: 50, atk: 40, def: 30, mdef: 30, exp: 300, gold: 150, rate: 5, type: 'rare', dropItems: ['dms1'] }
         ],
-        boss: { name: "クラーケン", maxHp: 500, atk: 45, def: 15, mdef: 20, exp: 200, gold: 200, type: 'boss', dropItems: ['dms1'] }
+        boss: { name: "クラーケン", maxHp: 500, atk: 45, def: 15, mdef: 20, exp: 200, gold: 200, type: 'boss', isBoss: true, dropItems: ['dms1'] }
     },
     {
         name: "灼熱の洞窟",
@@ -32,7 +32,7 @@ const stages = [
             { name: "フレイム", maxHp: 100, atk: 30, def: 0, mdef: 50, exp: 30, gold: 20, rate: 25 },
             { name: "メタルスライム", maxHp: 10, atk: 10, def: 999, mdef: 999, exp: 500, gold: 10, rate: 5, type: 'rare', dropItems: ['dps1'] }
         ],
-        boss: { name: "ドラゴン", maxHp: 700, atk: 55, def: 25, mdef: 15, exp: 350, gold: 350, type: 'boss', dropItems: ['dps1'] }
+        boss: { name: "ドラゴン", maxHp: 700, atk: 55, def: 25, mdef: 15, exp: 350, gold: 350, type: 'boss', isBoss: true, dropItems: ['dps1'] }
     },
     {
         name: "天空の塔",
@@ -44,7 +44,7 @@ const stages = [
             { name: "ガーゴイル", maxHp: 250, atk: 45, def: 40, mdef: 10, exp: 60, gold: 40, rate: 20 },
             { name: "天使の使い", maxHp: 100, atk: 30, def: 50, mdef: 50, exp: 800, gold: 500, rate: 5, type: 'rare', dropItems: ['dwa1'] }
         ],
-        boss: { name: "天空の覇者", maxHp: 900, atk: 70, def: 30, mdef: 30, exp: 500, gold: 500, type: 'boss', dropItems: ['dwa1'] }
+        boss: { name: "天空の覇者", maxHp: 900, atk: 70, def: 30, mdef: 30, exp: 500, gold: 500, type: 'boss', isBoss: true, dropItems: ['dwa1'] }
     },
     {
         name: "滅びの沼",
@@ -55,7 +55,7 @@ const stages = [
             { name: "ボーンロード", maxHp: 200, atk: 50, def: 25, mdef: 10, exp: 70, gold: 60, rate: 15 },
             { name: "古き獣の霊", maxHp: 120, atk: 55, def: 15, mdef: 35, exp: 1000, gold: 800, rate: 5, type: 'rare', dropItems: ['dam1'] }
         ],
-        boss: { name: "グレイヴライダー", maxHp: 1100, atk: 80, def: 35, mdef: 20, exp: 700, gold: 600, type: 'boss', dropItems: ['dam1'] }
+        boss: { name: "グレイヴライダー", maxHp: 1100, atk: 80, def: 35, mdef: 20, exp: 700, gold: 600, type: 'boss', isBoss: true, dropItems: ['dam1'] }
     },
     {
         name: "氷結の山頂",
@@ -66,7 +66,7 @@ const stages = [
             { name: "ブリザード", maxHp: 110, atk: 50, def: 10, mdef: 60, exp: 75, gold: 65, rate: 20 },
             { name: "霜の女王", maxHp: 150, atk: 45, def: 35, mdef: 70, exp: 1200, gold: 900, rate: 5, type: 'rare', dropItems: ['dpa1'] }
         ],
-        boss: { name: "アイスドラゴン", maxHp: 1300, atk: 90, def: 40, mdef: 35, exp: 850, gold: 700, type: 'boss', dropItems: ['dpa1'] }
+        boss: { name: "アイスドラゴン", maxHp: 1300, atk: 90, def: 40, mdef: 35, exp: 850, gold: 700, type: 'boss', isBoss: true, dropItems: ['dpa1'] }
     },
     {
         name: "影の森",
@@ -78,7 +78,7 @@ const stages = [
             { name: "デーモン", maxHp: 220, atk: 75, def: 20, mdef: 40, exp: 95, gold: 80, rate: 20 },
             { name: "混沌の化身", maxHp: 160, atk: 80, def: 30, mdef: 60, exp: 1500, gold: 1200, rate: 5, type: 'rare', dropItems: ['antiPoison'] }
         ],
-        boss: { name: "暗黒の君主", maxHp: 1500, atk: 110, def: 45, mdef: 40, exp: 1000, gold: 800, type: 'boss', dropItems: ['antiPoison'] }
+        boss: { name: "暗黒の君主", maxHp: 1500, atk: 110, def: 45, mdef: 40, exp: 1000, gold: 800, type: 'boss', isBoss: true, dropItems: ['antiPoison'] }
     },
     {
         name: "光の祭壇",
@@ -89,7 +89,7 @@ const stages = [
             { name: "光の巨人", maxHp: 300, atk: 65, def: 60, mdef: 25, exp: 110, gold: 100, rate: 20 },
             { name: "星降りの賢者", maxHp: 180, atk: 60, def: 45, mdef: 80, exp: 1800, gold: 1500, rate: 5, type: 'rare', dropItems: ['antiParalysis'] }
         ],
-        boss: { name: "光の大天使", maxHp: 1800, atk: 120, def: 50, mdef: 50, exp: 1200, gold: 1000, type: 'boss', dropItems: ['antiParalysis'] }
+        boss: { name: "光の大天使", maxHp: 1800, atk: 120, def: 50, mdef: 50, exp: 1200, gold: 1000, type: 'boss', isBoss: true, dropItems: ['antiParalysis'] }
     },
     {
         name: "魔王城",
@@ -99,7 +99,7 @@ const stages = [
             { name: "アークデーモン", maxHp: 220, atk: 65, def: 15, mdef: 40, exp: 70, gold: 60, rate: 35 },
             { name: "キラーマシン", maxHp: 300, atk: 70, def: 50, mdef: 20, exp: 90, gold: 70, rate: 25 }
         ],
-        boss: { name: "魔王", maxHp: 2500, atk: 130, def: 60, mdef: 50, exp: 2000, gold: 1500, type: 'boss', dropItems: ['antiConfusion', 'antiSleep'] }
+        boss: { name: "魔王", maxHp: 2500, atk: 130, def: 60, mdef: 50, exp: 2000, gold: 1500, type: 'boss', isBoss: true, dropItems: ['antiConfusion', 'antiSleep'] }
     }
 ];
 

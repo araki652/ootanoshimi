@@ -1,6 +1,6 @@
 // 敵データ管理
 class Enemy {
-    constructor(enemyData) {
+    constructor(enemyData, difficulty = 'normal') {
         this.name = enemyData.name;
         this.maxHp = enemyData.maxHp;
         this.hp = enemyData.maxHp;
@@ -12,6 +12,21 @@ class Enemy {
         this.type = enemyData.type || 'normal';
         this.dropItems = enemyData.dropItems || [];
         this.isBoss = enemyData.isBoss || false;
+
+        // 難易度に応じてステータスを調整
+        this.applyDifficulty(difficulty);
+    }
+
+    // 難易度に応じてステータスを調整
+    applyDifficulty(difficulty) {
+        const diffConfig = difficultyConfig[difficulty] || difficultyConfig.normal;
+        
+        this.maxHp = Math.floor(this.maxHp * diffConfig.enemyHpMultiplier);
+        this.hp = this.maxHp;
+        this.atk = Math.floor(this.atk * diffConfig.enemyAtkMultiplier);
+        this.def = Math.floor(this.def * diffConfig.enemyDefMultiplier);
+        this.exp = Math.floor(this.exp * diffConfig.expMultiplier);
+        this.gold = Math.floor(this.gold * diffConfig.goldMultiplier);
     }
 
     // ダメージを受ける

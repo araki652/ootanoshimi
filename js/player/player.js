@@ -20,6 +20,12 @@ class Player {
         this.skillLevel = [0, 0, 0];
         this.ailments = [];
         this.consecutiveWins = 0;
+        this.difficulty = "normal"; // イージー/ノーマル/ハード
+        this.skillPoints = 0;
+        this.learnedSkills = []; // 習得済みスキルID配列
+        this.activeSkills = [null, null, null]; // 戦闘時に使用するスキル（3スロット）
+        this.currentStageIndex = 0; // コンテニュー用
+        this.stageKillCount = 0; // コンテニュー用
     }
 
     // ステータス異常を付与
@@ -49,6 +55,21 @@ class Player {
         this.level++;
         this.exp -= this.nextExp;
         this.nextExp = Math.floor(this.nextExp * 1.3) + 10;
+        
+        // レベルに応じたスキルポイント付与
+        let skillPointBonus = 0;
+        if (this.level <= 2) {
+            skillPointBonus = 0; // Lv1-2：スキルポイントなし
+        } else if (this.level <= 4) {
+            skillPointBonus = 1; // Lv3-4：+1
+        } else if (this.level <= 10) {
+            skillPointBonus = 1; // Lv5-10：+1
+        } else if (this.level <= 20) {
+            skillPointBonus = 1; // Lv11-20：+1
+        } else {
+            skillPointBonus = 0; // Lv21以上：スキルポイントなし
+        }
+        this.skillPoints += skillPointBonus;
         
         if (job === 'warrior') {
             this.maxHp += 25;
@@ -145,5 +166,90 @@ class Player {
     // 死亡判定
     isDead() {
         return this.hp <= 0;
+    }
+
+    // 難易度を設定
+    setDifficulty(difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    // スキルを習得
+    learnSkill(skillId) {
+        if (!this.learnedSkills.includes(skillId)) {
+            this.learnedSkills.push(skillId);
+            return true;
+        }
+        return false;
+    }
+
+    // スキルを習得済みか判定
+    hasSkill(skillId) {
+        return this.learnedSkills.includes(skillId);
+    }
+
+    // スキルポイントを消費
+    consumeSkillPoints(amount) {
+        if (this.skillPoints >= amount) {
+            this.skillPoints -= amount;
+            return true;
+        }
+        return false;
+    }
+
+    // ゲームデータを保存（コンテニュー用）
+    saveGameData() {
+        const data = {
+            name: this.name,
+            level: this.level,
+            hp: this.hp,
+            maxHp: this.maxHp,
+            mp: this.mp,
+            maxMp: this.maxMp,
+            baseAtk: this.baseAtk,
+            atk: this.atk,
+            baseDef: this.baseDef,
+            def: this.def,
+            baseMatk: this.baseMatk,
+            matk: this.matk,
+            exp: this.exp,
+            nextExp: this.nextExp,
+            gold: this.gold,
+            job: this.job,
+            skillLevel: [...this.skillLevel],
+            ailments: [...this.ailments],
+            consecutiveWins: this.consecutiveWins,
+            difficulty: this.difficulty,
+            skillPoints: this.skillPoints,
+            learnedSkills: [...this.learnedSkills],
+            activeSkills: [...this.activeSkills],
+            currentStageIndex: this.currentStageIndex,
+            stageKillCount: this.stageKillCount
+        };
+        localStorage.setItem('ootanoshimi_save', JSON.stringify(data));
+    }
+
+    // ゲームデータを読み込む（コンテニュー用）
+    loadGameData() {
+        const data = localStorage.getItem('ootanoshimi_save');
+        if (!data) return false;
+
+        try {
+            const parsed = JSON.parse(data);
+            Object.assign(this, parsed);
+            return true;
+        } catch (e) {
+            console.error('Save data corrupted:', e);
+            return false;
+        }
+    }
+
+    // セーブデータが存在するか
+    static hasSaveData() {
+        return localStorage.getItem('ootanoshimi_save') !== null;
+    }
+
+    // セーブデータを削除
+    static clearSaveData() {
+        localStorage.removeItem('ootanoshimi_save');
     }
 }

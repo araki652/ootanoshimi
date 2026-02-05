@@ -22,8 +22,9 @@
             世界を支配する<span style="color:#e74c3c; font-weight:bold;">『魔王』</span>を倒せば<br>
             願いを一つ叶えましょう」
         </p>
-        <div style="margin-top:30px;">
+        <div style="margin-top:30px; display:flex; flex-direction:column; gap:10px;">
             <button id="game-start-btn">剣を取り、冒険を始める</button>
+            <button id="continue-btn" style="display:none; background-color:#2ecc71; border-color:#2ecc71; color:#000;">コンテニュー</button>
         </div>
     </div>
 
@@ -53,11 +54,35 @@
         </div>
     </div>
 
+    <div id="difficulty-select-screen" style="display:none;">
+        <h1 style="color:#f39c12; text-shadow: 2px 2px #fff; margin-bottom:20px;">難易度を選択</h1>
+        <div id="difficulty-buttons" style="display:flex; flex-direction:column; gap:10px;">
+            <button id="difficulty-easy" style="background-color:#2ecc71; padding:15px; text-align:left;">
+                <div style="font-weight:bold; color:#000;">イージー</div>
+                <div style="font-size:0.8rem; color:#000;">敵が弱い。初心者向け</div>
+                <div style="font-size:0.75rem; color:#000;">経験値1.5倍 報酬1.2倍</div>
+            </button>
+            <button id="difficulty-normal" style="background-color:#3498db; padding:15px; text-align:left;">
+                <div style="font-weight:bold; color:#fff;">ノーマル</div>
+                <div style="font-size:0.8rem; color:#fff;">標準的な難易度</div>
+                <div style="font-size:0.75rem; color:#fff;">経験値1倍 報酬1倍</div>
+            </button>
+            <button id="difficulty-hard" style="background-color:#e74c3c; padding:15px; text-align:left;">
+                <div style="font-weight:bold; color:#fff;">ハード</div>
+                <div style="font-size:0.8rem; color:#fff;">敵が強い。上級者向け</div>
+                <div style="font-size:0.75rem; color:#fff;">経験値0.8倍 報酬0.8倍</div>
+            </button>
+        </div>
+    </div>
+
     <div id="main-game-interface" style="display:none;">
         
         <div id="top-info">
-            <span id="stage-name">ステージ: 迷いの森</span>
-            <span id="gold-display">0 G</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                <span id="stage-name">ステージ: 迷いの森</span>
+                <span id="skill-points-display" style="color:#9b59b6; font-weight:bold;">SP: 0</span>
+                <span id="gold-display">0 G</span>
+            </div>
         </div>
 
         <section class="unit">
@@ -100,6 +125,7 @@
             <button id="atk-btn">物理攻撃</button>
             <button id="fire-btn" class="magic-btn">魔法(8MP)</button>
             <button id="heal-btn" class="heal-btn">回復(5MP)</button>
+            <button id="skilltree-btn" style="border-color:#9b59b6; color:#9b59b6;">スキル</button>
         </div>
         
         <div id="result-area" style="display:none; flex-direction:column; gap:10px;">
@@ -126,6 +152,20 @@
             </div>
         </div>
 
+        <div id="skilltree-modal" class="modal" style="display:none;">
+            <div class="modal-content" style="max-height:500px; overflow-y:auto;">
+                <h3 style="color:#9b59b6; margin-top:0;">🌳 スキルツリー</h3>
+                <div style="text-align:center; margin-bottom:15px;">
+                    <span style="font-weight:bold; font-size:1.1rem;" id="skilltree-job-name">戦士</span>
+                    <span style="color:#9b59b6; font-weight:bold; margin-left:10px;">スキルポイント: <span id="skill-points">0</span></span>
+                </div>
+                <hr>
+                <div id="skilltree-nodes" style="display:flex; flex-direction:column; gap:5px;"></div>
+                <hr>
+                <button id="skilltree-close-btn" style="width:100%; padding:10px;">閉じる</button>
+            </div>
+        </div>
+
     </div>
 </main>
 
@@ -133,6 +173,7 @@
 <script src="../js/config/jobs.js"></script>
 <script src="../js/config/stages.js"></script>
 <script src="../js/config/shop.js"></script>
+<script src="../js/config/skilltree.js"></script>
 
 <!-- クラス定義 -->
 <script src="../js/player/player.js"></script>
