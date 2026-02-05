@@ -47,6 +47,13 @@ class BattleSystem {
         let effect = null;
 
         switch(skill.type) {
+            case "normalAttack": // 全職業：通常攻撃
+                const resNormal = BattleSystem.calculateDamage(player.atk, enemy.def, 'phys');
+                damage = resNormal.val;
+                message = `${skill.name}！ ${damage}のダメージ！`;
+                if (resNormal.isCrit) message = "★会心の一撃！ " + message;
+                break;
+
             case "atkUp": // 戦士：大斬撃
                 const res1 = BattleSystem.calculateDamage(player.atk * 1.5, enemy.def, 'phys');
                 damage = res1.val;
