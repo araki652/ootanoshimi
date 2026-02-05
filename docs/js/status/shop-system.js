@@ -149,4 +149,100 @@ class ShopSystem {
 
         return activeSets;
     }
+
+    // ガチャを引く
+    drawGacha(tier, player) {
+        // tier: 100, 500, 1000
+        const rates = gachaRates[tier];
+        if (!rates) {
+            return { success: false, message: "無効なガチャです" };
+        }
+
+        // プレイヤーのゴールドをチェック
+        if (player.gold < tier) {
+            return { success: false, message: `ゴールドが足りません（必要: ${tier}G）` };
+        }
+
+        // ゴールド消費
+        player.gold -= tier;
+
+        // レアリティを抽選
+        let rarity = 1;
+        const random = Math.random();
+        let cumulative = 0;
+
+        for (const [rar, rate] of Object.entries(rates)) {
+            cumulative += rate;
+            if (random < cumulative) {
+                rarity = parseInt(rar);
+                break;
+            }
+        }
+
+        // 該当レアリティのアーティファクトを抽選
+        const candidates = getArtifactsByRarityAndTier(rarity, tier);
+        if (candidates.length === 0) {
+            return { success: false, message: "該当するアーティファクトがありません" };
+        }
+
+        const artifact = candidates[Math.floor(Math.random() * candidates.length)];
+
+        // プレイヤーのアーティファクトリストに追加
+        if (player.artifacts.length < player.artifactSlots) {
+            player.artifacts.push(artifact.id);
+            return {
+                success: true,
+                artifact: artifact,
+                message: `${artifact.name} を手に入れた！`,
+                newSlot: false
+            };
+        } else {
+            // 枠が満杯の場合は別途処理が必要
+            return {
+                success: true,
+                artifact: artifact,
+                message: `${artifact.name} を手に入れたが、装備枠が満杯です`,
+                newSlot: true
+            };
+        }
+    }
+
+    // アーティファクト枠を解放
+    unlockArtifactSlot(player) {
+        if (player.artifactSlots >= 5) {
+            return { success: false, message: "装備枠は既に最大です" };
+        }
+
+        const cost = artifactSlotUnlockCosts[player.artifactSlots];
+        if (player.gold < cost) {
+            return { success: false, message: `ゴールドが足りません（必要: ${cost}G）` };
+        }
+
+        player.gold -= cost;
+        player.artifactSlots++;
+
+        return {
+            success: true,
+            message: `装備枠を解放しました！ (${player.artifactSlots}/5)`,
+            cost: cost
+        };
+    }
+
+    // アーティファクトを装備/外す
+    equipArtifact(artifactId, player) {
+        // 既に装備中か確認
+        const index = player.artifacts.indexOf(artifactId);
+        if (index !== -1) {
+            player.artifacts.splice(index, 1);
+            return { success: true, message: "アーティファクトを外しました" };
+        } else {
+            // 新たに装備
+            if (player.artifacts.length >= player.artifactSlots) {
+                return { success: false, message: "装備枠がいっぱいです" };
+            }
+            player.artifacts.push(artifactId);
+            return { success: true, message: "アーティファクトを装備しました" };
+        }
+    }
 }
+

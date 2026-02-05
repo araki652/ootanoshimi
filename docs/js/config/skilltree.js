@@ -275,5 +275,23 @@ const difficultyConfig = {
         expMultiplier: 0.8,
         goldMultiplier: 0.8,
         desc: "敵が強い。上級者向け"
+    },
+    lunatic: {
+        name: "ルナティック",
+        enemyHpMultiplier: 2.2,
+        enemyAtkMultiplier: 1.8,
+        enemyDefMultiplier: 1.5,
+        expMultiplier: 2.0,
+        goldMultiplier: 2.5,
+        desc: "敵が極めて強い。上級者のみ推奨。ドロップ率大幅UP"
+    },
+    inferno: {
+        name: "インフェルノ",
+        enemyHpMultiplier: 3.0,
+        enemyAtkMultiplier: 2.5,
+        enemyDefMultiplier: 2.0,
+        expMultiplier: 3.5,
+        goldMultiplier: 4.0,
+        desc: "究極の難易度。最高の報酬。覚悟を決めよ。"
     }
 };

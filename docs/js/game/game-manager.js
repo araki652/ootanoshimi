@@ -63,13 +63,13 @@ class GameManager {
     }
 
     // 敵パーティを生成
-    generateEnemyParty(baseEnemy, stage, difficulty = 'normal') {
+    generateEnemyParty(baseEnemy, stage, difficulty = 'normal', loopCount = 0) {
         const additionalCount = Math.floor(Math.random() * 3) + 1; // 1～3体追加
         const party = [];
         
         for (let i = 0; i < additionalCount; i++) {
             const selectedEnemy = Enemy.selectRandom(stage.enemies);
-            party.push(new Enemy(selectedEnemy, difficulty));
+            party.push(new Enemy(selectedEnemy, difficulty, loopCount));
         }
         
         return party;
@@ -88,11 +88,48 @@ class GameManager {
         player.exp += expGain;
         player.gold += goldGain;
 
+        // ボスドロップ処理
+        let bossDropItems = [];
+        if (monster.isBoss && monster.dropItems && monster.dropItems.length > 0) {
+            // 難易度ごとのドロップ率
+            const dropRates = {
+                'easy': 0.2,
+                'normal': 0.6,
+                'hard': 1.0,
+                'lunatic': 1.5,
+                'inferno': 2.0
+            };
+            const baseRate = dropRates[player.difficulty] || 1.0;
+
+            // 各ドロップアイテムを処理
+            monster.dropItems.forEach(itemId => {
+                // ドロップ率に基づいて確率判定
+                let dropChance = baseRate;
+                if (dropChance >= 1.0) {
+                    // 1.0以上の場合：確定ドロップ + 追加ドロップの確率
+                    bossDropItems.push(itemId);
+                    player.bossDropItems.push(itemId);
+                    // 追加ドロップ判定（例：lunatic 1.5倍 → 50%で追加）
+                    if (Math.random() < (dropChance - 1.0)) {
+                        bossDropItems.push(itemId);
+                        player.bossDropItems.push(itemId);
+                    }
+                } else {
+                    // 1.0未満の場合：確率に基づいてドロップ
+                    if (Math.random() < dropChance) {
+                        bossDropItems.push(itemId);
+                        player.bossDropItems.push(itemId);
+                    }
+                }
+            });
+        }
+
         return {
             expGain,
             goldGain,
             bonus,
-            dropItem: monster.getDropItem()
+            dropItem: monster.getDropItem(),
+            bossDropItems: bossDropItems
         };
     }
 

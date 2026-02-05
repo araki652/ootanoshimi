@@ -34,6 +34,14 @@ window.onload = function() {
     const shopGoldLabel = document.getElementById("shop-gold");
     const shopMpRestoreBtn = document.getElementById("shop-mp-restore-btn");
 
+    const gachaModal = document.getElementById("gacha-modal");
+    const gacha100Btn = document.getElementById("gacha-100-btn");
+    const gacha500Btn = document.getElementById("gacha-500-btn");
+    const gacha1000Btn = document.getElementById("gacha-1000-btn");
+    const gachaCloseBtn = document.getElementById("gacha-close-btn");
+    const unlockArtifactSlotBtn = document.getElementById("unlock-artifact-slot-btn");
+    const artifactsDisplay = document.getElementById("artifacts-display");
+
     const skilltreeModal = document.getElementById("skilltree-modal");
     const skilltreeCloseBtn = document.getElementById("skilltree-close-btn");
 
@@ -50,6 +58,7 @@ window.onload = function() {
             introScreen.style.display = "none";
             mainGameInterface.style.display = "block";
             gameManager.isGameRunning = true;
+            updateLoopDisplay();
             encountEnemy();
         });
     }
@@ -80,12 +89,21 @@ window.onload = function() {
     document.getElementById("difficulty-easy").addEventListener("click", () => selectDifficulty("easy"));
     document.getElementById("difficulty-normal").addEventListener("click", () => selectDifficulty("normal"));
     document.getElementById("difficulty-hard").addEventListener("click", () => selectDifficulty("hard"));
+    document.getElementById("difficulty-lunatic").addEventListener("click", () => selectDifficulty("lunatic"));
+    document.getElementById("difficulty-inferno").addEventListener("click", () => selectDifficulty("inferno"));
 
     function selectDifficulty(difficulty) {
+        // ニューゲーム+の場合は周回数をインクリメント
+        if (window.isGameCleared) {
+            player.loopCount++;
+            window.isGameCleared = false;
+        }
+
         player.setDifficulty(difficulty);
         difficultySelectScreen.style.display = "none";
         mainGameInterface.style.display = "block";
         gameManager.startGame();
+        updateLoopDisplay();
         encountEnemy();
     }
 
@@ -112,7 +130,7 @@ window.onload = function() {
             console.log(`[ボス判定] shouldFightBoss = true`);
             if (gameManager.checkBossSpawn()) {
                 // ボス戦
-                gameManager.currentMonster = new Enemy(stage.boss, player.difficulty);
+                gameManager.currentMonster = new Enemy(stage.boss, player.difficulty, player.loopCount);
                 gameManager.monsterParty = [];
                 gameManager.isMultiMonsterBattle = false;
                 uiUpdater.setLog(`⚠ ${stage.boss.name} (BOSS) があらわれた！`);
@@ -143,12 +161,12 @@ window.onload = function() {
 
     function encountNormalEnemy(stage) {
         const selectedEnemy = Enemy.selectRandom(stage.enemies);
-        gameManager.currentMonster = new Enemy(selectedEnemy, player.difficulty);
+        gameManager.currentMonster = new Enemy(selectedEnemy, player.difficulty, player.loopCount);
 
         // 複数体出現イベント
         if (gameManager.checkMultiEnemyEvent()) {
             gameManager.isMultiMonsterBattle = true;
-            gameManager.monsterParty = gameManager.generateEnemyParty(stage.enemies, stage, player.difficulty);
+            gameManager.monsterParty = gameManager.generateEnemyParty(stage.enemies, stage, player.difficulty, player.loopCount);
             uiUpdater.setLog(`${gameManager.currentMonster.name} と仲間たちがあらわれた！`);
         } else {
             gameManager.isMultiMonsterBattle = false;
@@ -232,6 +250,17 @@ window.onload = function() {
                 }
             }
 
+            // ボスドロップアイテム処理
+            if (result.bossDropItems && result.bossDropItems.length > 0) {
+                msg += `\n【ボスドロップ】`;
+                result.bossDropItems.forEach(itemId => {
+                    const item = shopItems.find(item => item.id === itemId);
+                    if (item) {
+                        msg += `\n${item.name}を手に入れた！`;
+                    }
+                });
+            }
+
             // レベルアップ判定
             if (statusManager.canLevelUp()) {
                 player.levelUp(player.job);
@@ -259,6 +288,15 @@ window.onload = function() {
             if (gameManager.currentMonster.isBoss) {
                 if (gameManager.isFinalBoss()) {
                     msg += `\n全ての戦いが終わった…。\n魔王は崩れ去り、光が世界を包む。\n(THE END)`;
+                    
+                    // ニューゲーム+表示
+                    const currentLoopCount = player.loopCount;
+                    msg += `\n\n【ニューゲーム+】\n難易度を選択して周回を始めますか？`;
+                    
+                    // ボタン処理を後で行うため、フラグを設定
+                    window.isGameCleared = true;
+                    window.clearedLoopCount = currentLoopCount;
+                    
                     gameManager.currentStageIndex = 0;
                     gameManager.stageKillCount = 0;
                     player.currentStageIndex = 0;
@@ -521,6 +559,122 @@ window.onload = function() {
         shopGoldLabel.textContent = player.gold;
         document.getElementById("job-name-shop").textContent = currentJob.name;
 
+        // ボスドロップアイテム表示
+        if (player.bossDropItems && player.bossDropItems.length > 0) {
+            const bossDropSection = document.createElement("div");
+            bossDropSection.style.cssText = "border-top: 2px solid #f39c12; padding-top: 15px; margin-top: 15px;";
+            
+            const title = document.createElement("div");
+            title.textContent = "【ボスドロップ】";
+            title.style.cssText = "font-weight: bold; color: #f39c12; margin-bottom: 10px;";
+            bossDropSection.appendChild(title);
+
+            player.bossDropItems.forEach((itemId, index) => {
+                const item = shopItems.find(i => i.id === itemId);
+                if (!item) return;
+
+                const row = document.createElement("div");
+                row.className = "shop-item";
+                
+                let desc = `${item.name} `;
+                if (item.set) desc += `【${item.set}セット】`;
+                if (item.type === 'atk') desc += `(攻+${item.val})`;
+                if (item.type === 'def') desc += `(防+${item.val})`;
+                if (item.type === 'matk') desc += `(魔+${item.val})`;
+
+                const info = document.createElement("span");
+                info.textContent = desc;
+
+                const convertBtn = document.createElement("button");
+                convertBtn.textContent = "装備";
+                convertBtn.style.cssText = "background-color: #f39c12; cursor: pointer;";
+                convertBtn.onclick = () => {
+                    // ボスドロップを装備化
+                    player.bossDropItems.splice(index, 1);
+                    item.bought = true;
+                    statusManager.recalculateStats();
+                    uiUpdater.updatePlayerStatus(player, statusManager);
+                    player.saveGameData();
+                    renderShop();
+                };
+
+                row.appendChild(info);
+                row.appendChild(convertBtn);
+                bossDropSection.appendChild(row);
+            });
+
+            shopItemsContainer.appendChild(bossDropSection);
+            
+            const separator = document.createElement("div");
+            separator.style.cssText = "border-top: 1px solid #ccc; margin-top: 15px; padding-top: 15px;";
+            shopItemsContainer.appendChild(separator);
+        }
+
+        // 装備セット効果表示
+        const activeSets = new Set();
+        shopItems.forEach(item => {
+            if (item.set && item.bought && (!item.jobs || item.jobs.includes(player.job))) {
+                activeSets.add(item.set);
+            }
+        });
+
+        if (activeSets.size > 0) {
+            const setsSection = document.createElement("div");
+            setsSection.style.cssText = "border-top: 2px solid #3498db; padding-top: 15px; margin-top: 15px; margin-bottom: 15px;";
+            
+            const setsTitle = document.createElement("div");
+            setsTitle.textContent = "【装備セット効果】";
+            setsTitle.style.cssText = "font-weight: bold; color: #3498db; margin-bottom: 10px;";
+            setsSection.appendChild(setsTitle);
+
+            activeSets.forEach(setName => {
+                const setData = equipmentSets[setName];
+                if (!setData) return;
+
+                const setRow = document.createElement("div");
+                setRow.style.cssText = "margin-bottom: 10px; padding: 8px; background-color: #ecf0f1; border-radius: 4px;";
+                
+                let setDesc = `${setName.charAt(0).toUpperCase() + setName.slice(1)}セット: `;
+                const bonuses = [];
+                if (setData.bonusAtk) bonuses.push(`攻+${setData.bonusAtk}`);
+                if (setData.bonusDef) bonuses.push(`防+${setData.bonusDef}`);
+                if (setData.bonusMatk) bonuses.push(`魔+${setData.bonusMatk}`);
+                if (setData.bonusMp) bonuses.push(`MP+${setData.bonusMp}`);
+                setDesc += bonuses.join(", ");
+
+                // セット構成アイテムを表示
+                const itemNames = setData.items
+                    .map(id => shopItems.find(i => i.id === id)?.name)
+                    .filter(Boolean)
+                    .join(", ");
+                setDesc += ` (${itemNames})`;
+
+                setRow.textContent = setDesc;
+                setsSection.appendChild(setRow);
+
+                // セット選択ボタン
+                const selectBtn = document.createElement("button");
+                selectBtn.textContent = player.activeEquipSet === setName ? "✓ 有効" : "有効にする";
+                selectBtn.style.cssText = `background-color: ${player.activeEquipSet === setName ? '#27ae60' : '#3498db'}; color: white; cursor: pointer; padding: 5px 10px; border-radius: 3px; margin-left: 10px;`;
+                selectBtn.onclick = () => {
+                    player.activeEquipSet = player.activeEquipSet === setName ? null : setName;
+                    statusManager.recalculateStats();
+                    uiUpdater.updatePlayerStatus(player, statusManager);
+                    player.saveGameData();
+                    renderShop();
+                };
+
+                setRow.appendChild(selectBtn);
+                setsSection.appendChild(setRow);
+            });
+
+            shopItemsContainer.appendChild(setsSection);
+            
+            const separator = document.createElement("div");
+            separator.style.cssText = "border-top: 1px solid #ccc; margin-top: 15px; padding-top: 15px;";
+            shopItemsContainer.appendChild(separator);
+        }
+
         shopItems.forEach(item => {
             if (item.jobs && !item.jobs.includes(player.job)) return;
             
@@ -564,6 +718,14 @@ window.onload = function() {
             row.appendChild(buyBtn);
             shopItemsContainer.appendChild(row);
         });
+
+        // ガチャボタンをショップ下部に追加
+        const separator = document.createElement("div");
+        separator.style.cssText = "border-top: 1px solid #ccc; margin-top: 15px; padding-top: 15px;";
+        shopItemsContainer.appendChild(separator);
+
+        const gachaBtn = addGachaButtonToShop();
+        shopItemsContainer.appendChild(gachaBtn);
     }
 
     shopOpenBtn.addEventListener("click", () => {
@@ -600,4 +762,139 @@ window.onload = function() {
         uiUpdater.setSkillButtons(atkBtn, fireBtn, healBtn, currentJob, player);
         enableButtons();
     });
+
+    // --- ガチャシステム ---
+    function renderGacha() {
+        document.getElementById("gacha-gold").textContent = player.gold;
+        document.getElementById("artifact-count").textContent = player.artifacts.length;
+        document.getElementById("artifact-slots").textContent = player.artifactSlots;
+        document.getElementById("artifact-slots-display").textContent = player.artifactSlots;
+
+        const nextSlotCost = artifactSlotUnlockCosts[player.artifactSlots] || 0;
+        document.getElementById("unlock-cost").textContent = nextSlotCost;
+
+        // 装備中のアーティファクト表示
+        artifactsDisplay.innerHTML = "";
+        player.artifacts.forEach((artifactId, index) => {
+            const artifact = getArtifactById(artifactId);
+            if (!artifact) return;
+
+            const row = document.createElement("div");
+            row.style.cssText = "padding:8px; margin-bottom:5px; background-color:#f0f0f0; border-radius:3px; display:flex; justify-content:space-between; align-items:center;";
+            
+            let rarityColor = "#ccc";
+            if (artifact.rarity === 5) rarityColor = "#f39c12";
+            else if (artifact.rarity === 4) rarityColor = "#9b59b6";
+            else if (artifact.rarity === 3) rarityColor = "#3498db";
+            
+            const info = document.createElement("span");
+            info.textContent = `${artifact.icon} ${artifact.name} (★${artifact.rarity})`;
+            info.style.color = rarityColor;
+            
+            const removeBtn = document.createElement("button");
+            removeBtn.textContent = "外す";
+            removeBtn.style.cssText = "padding:3px 8px; font-size:0.8rem; cursor:pointer;";
+            removeBtn.onclick = () => {
+                player.artifacts.splice(index, 1);
+                statusManager.recalculateStats();
+                uiUpdater.updatePlayerStatus(player, statusManager);
+                player.saveGameData();
+                renderGacha();
+            };
+
+            row.appendChild(info);
+            row.appendChild(removeBtn);
+            artifactsDisplay.appendChild(row);
+        });
+    }
+
+    function drawGacha(tier) {
+        const result = shopSystem.drawGacha(tier, player);
+        
+        if (!result.success) {
+            uiUpdater.setLog(result.message);
+            return;
+        }
+
+        // ガチャ結果ダイアログ
+        let rarity = result.artifact.rarity;
+        let rarityText = ["", "★", "★★", "★★★", "★★★★", "★★★★★"];
+        let rarityColor = "#ccc";
+        if (rarity === 5) rarityColor = "#f39c12";
+        else if (rarity === 4) rarityColor = "#9b59b6";
+        else if (rarity === 3) rarityColor = "#3498db";
+        else if (rarity === 2) rarityColor = "#2ecc71";
+
+        alert(`🎉 ${rarityText[rarity]} ${result.artifact.name}\n\n${result.artifact.icon} ${result.message}`);
+
+        // 装備中でない場合の質問
+        if (result.newSlot) {
+            if (confirm("装備枠が満杯です。枠を解放しますか？")) {
+                const unlockResult = shopSystem.unlockArtifactSlot(player);
+                if (unlockResult.success) {
+                    uiUpdater.setLog(unlockResult.message);
+                }
+            }
+        }
+
+        statusManager.recalculateStats();
+        uiUpdater.updatePlayerStatus(player, statusManager);
+        player.saveGameData();
+        renderGacha();
+    }
+
+    // ガチャボタンイベント
+    gacha100Btn.addEventListener("click", () => drawGacha(100));
+    gacha500Btn.addEventListener("click", () => drawGacha(500));
+    gacha1000Btn.addEventListener("click", () => drawGacha(1000));
+
+    unlockArtifactSlotBtn.addEventListener("click", () => {
+        if (player.artifactSlots >= 5) {
+            alert("装備枠は既に最大です");
+            return;
+        }
+        const result = shopSystem.unlockArtifactSlot(player);
+        if (result.success) {
+            alert(result.message);
+            statusManager.recalculateStats();
+            uiUpdater.updatePlayerStatus(player, statusManager);
+            player.saveGameData();
+            renderGacha();
+        } else {
+            alert(result.message);
+        }
+    });
+
+    // ガチャモーダルイベント
+    shopOpenBtn.addEventListener("click", () => {
+        shopModal.style.display = "flex";
+        renderShop();
+    });
+
+    shopCloseBtn.addEventListener("click", () => {
+        shopModal.style.display = "none";
+    });
+
+    gachaCloseBtn.addEventListener("click", () => {
+        gachaModal.style.display = "none";
+    });
+
+    // ショップにガチャボタンを追加（ゲーム開始後）
+    function addGachaButtonToShop() {
+        const gachaBtn = document.createElement("button");
+        gachaBtn.textContent = "🎰 アーティファクトガチャ";
+        gachaBtn.style.cssText = "width:100%; padding:10px; margin-top:10px; background-color:#f39c12; font-weight:bold; cursor:pointer;";
+        gachaBtn.onclick = () => {
+            shopModal.style.display = "none";
+            gachaModal.style.display = "flex";
+            renderGacha();
+        };
+        return gachaBtn;
+    }
+
+    // 周回表示更新
+    function updateLoopDisplay() {
+        document.getElementById("loop-count-display").textContent = `周回: ${player.loopCount}`;
+    }
 };
+

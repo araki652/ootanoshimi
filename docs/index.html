@@ -72,6 +72,16 @@
                 <div style="font-size:0.8rem; color:#fff;">敵が強い。上級者向け</div>
                 <div style="font-size:0.75rem; color:#fff;">経験値0.8倍 報酬0.8倍</div>
             </button>
+            <button id="difficulty-lunatic" style="background-color:#9b59b6; padding:15px; text-align:left;">
+                <div style="font-weight:bold; color:#fff;">ルナティック</div>
+                <div style="font-size:0.8rem; color:#fff;">敵が極めて強い。レアドロップ大幅UP</div>
+                <div style="font-size:0.75rem; color:#fff;">経験値2倍 報酬2.5倍 ドロップ+200%</div>
+            </button>
+            <button id="difficulty-inferno" style="background-color:#c0392b; padding:15px; text-align:left;">
+                <div style="font-weight:bold; color:#fff;">インフェルノ</div>
+                <div style="font-size:0.8rem; color:#fff;">究極の難易度。最高の報酬。</div>
+                <div style="font-size:0.75rem; color:#fff;">経験値3.5倍 報酬4倍 ボスドロップ確定</div>
+            </button>
         </div>
     </div>
 
@@ -80,6 +90,7 @@
         <div id="top-info">
             <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
                 <span id="stage-name">ステージ: 迷いの森</span>
+                <span id="loop-count-display" style="color:#e74c3c; font-weight:bold; margin-left:15px;">周回: 0</span>
                 <span id="skill-points-display" style="color:#9b59b6; font-weight:bold;">SP: 0</span>
                 <span id="gold-display">0 G</span>
             </div>
@@ -152,6 +163,64 @@
             </div>
         </div>
 
+        <div id="gacha-modal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <h3 style="color:#f1c40f; margin-top:0;">🎰 ガチャシステム</h3>
+                <div style="text-align:center; margin-bottom:15px;">
+                    <span style="color:#f1c40f; font-weight:bold;">所持金: <span id="gacha-gold">0</span> G</span>
+                    <div style="font-size:0.85rem; color:#aaa; margin-top:5px;">
+                        <span id="artifact-count">0</span> / <span id="artifact-slots">1</span> アーティファクト装備中
+                    </div>
+                </div>
+                <hr>
+                
+                <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
+                    <div style="background-color:#ecf0f1; padding:10px; border-radius:4px;">
+                        <button id="gacha-100-btn" style="width:100%; background-color:#3498db; padding:12px; font-weight:bold;">
+                            💰 100G ガチャ
+                        </button>
+                        <div style="font-size:0.75rem; color:#666; margin-top:5px;">★1-★3: 80%-20%</div>
+                    </div>
+                    
+                    <div style="background-color:#ecf0f1; padding:10px; border-radius:4px;">
+                        <button id="gacha-500-btn" style="width:100%; background-color:#9b59b6; padding:12px; font-weight:bold;">
+                            💎 500G ガチャ
+                        </button>
+                        <div style="font-size:0.75rem; color:#666; margin-top:5px;">★1-★4: 40%-30%-20%-10%</div>
+                    </div>
+                    
+                    <div style="background-color:#ecf0f1; padding:10px; border-radius:4px;">
+                        <button id="gacha-1000-btn" style="width:100%; background-color:#f39c12; padding:12px; font-weight:bold;">
+                            👑 1000G ガチャ
+                        </button>
+                        <div style="font-size:0.75rem; color:#666; margin-top:5px;">★1-★5: 20%-20%-30%-25%-5%</div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div style="text-align:center; margin-bottom:15px;">
+                    <span style="font-weight:bold; color:#2ecc71;">アーティファクト枠解放</span>
+                    <div style="font-size:0.85rem; color:#666; margin-top:5px;">
+                        現在: <span id="artifact-slots-display">1</span> / 5
+                    </div>
+                </div>
+                
+                <button id="unlock-artifact-slot-btn" style="width:100%; margin-bottom:15px; padding:10px; background-color:#2ecc71; font-weight:bold;">
+                    装備枠を解放 (<span id="unlock-cost">5000</span>G)
+                </button>
+                
+                <hr>
+                
+                <div style="max-height:200px; overflow-y:auto;">
+                    <div id="artifacts-display" style="font-size:0.85rem;"></div>
+                </div>
+                
+                <hr>
+                <button id="gacha-close-btn" style="width:100%; padding:10px;">閉じる</button>
+            </div>
+        </div>
+
         <div id="skilltree-modal" class="modal" style="display:none;">
             <div class="modal-content" style="max-height:500px; overflow-y:auto;">
                 <h3 style="color:#9b59b6; margin-top:0;">🌳 スキルツリー</h3>
@@ -174,6 +243,7 @@
 <script src="js/config/stages.js"></script>
 <script src="js/config/shop.js"></script>
 <script src="js/config/skilltree.js"></script>
+<script src="js/config/artifacts.js"></script>
 
 <!-- クラス定義 -->
 <script src="js/player/player.js"></script>

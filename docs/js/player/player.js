@@ -26,6 +26,11 @@ class Player {
         this.activeSkills = [null, null, null]; // 戦闘時に使用するスキル（3スロット）
         this.currentStageIndex = 0; // コンテニュー用
         this.stageKillCount = 0; // コンテニュー用
+        this.bossDropItems = []; // ボスドロップアイテム保持
+        this.activeEquipSet = null; // 現在有効な装備セット
+        this.artifacts = []; // 装備中のアーティファクトID配列（最大5個）
+        this.artifactSlots = 1; // 解放済みアーティファクト枠（最大5）
+        this.loopCount = 0; // ニューゲーム+ の周回数
     }
 
     // ステータス異常を付与
@@ -223,7 +228,12 @@ class Player {
             learnedSkills: [...this.learnedSkills],
             activeSkills: [...this.activeSkills],
             currentStageIndex: this.currentStageIndex,
-            stageKillCount: this.stageKillCount
+            stageKillCount: this.stageKillCount,
+            bossDropItems: [...this.bossDropItems],
+            activeEquipSet: this.activeEquipSet,
+            artifacts: [...this.artifacts],
+            artifactSlots: this.artifactSlots,
+            loopCount: this.loopCount
         };
         localStorage.setItem('ootanoshimi_save', JSON.stringify(data));
     }

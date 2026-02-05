@@ -1,6 +1,6 @@
 // 敵データ管理
 class Enemy {
-    constructor(enemyData, difficulty = 'normal') {
+    constructor(enemyData, difficulty = 'normal', loopCount = 0) {
         this.name = enemyData.name;
         this.maxHp = enemyData.maxHp;
         this.hp = enemyData.maxHp;
@@ -15,6 +15,8 @@ class Enemy {
 
         // 難易度に応じてステータスを調整
         this.applyDifficulty(difficulty);
+        // ニューゲーム+の周回数に応じてステータスを調整
+        this.applyLoopScaling(loopCount);
     }
 
     // 難易度に応じてステータスを調整
@@ -27,6 +29,21 @@ class Enemy {
         this.def = Math.floor(this.def * diffConfig.enemyDefMultiplier);
         this.exp = Math.floor(this.exp * diffConfig.expMultiplier);
         this.gold = Math.floor(this.gold * diffConfig.goldMultiplier);
+    }
+
+    // ニューゲーム+用：周回数に応じてステータスを調整
+    applyLoopScaling(loopCount) {
+        if (loopCount === 0) return;
+        
+        // 周回数に応じたスケーリング：1周目+10%, 2周目+20%, 3周目+30%など（最大3倍上限）
+        const scaleFactor = Math.min(1 + (loopCount * 0.1), 3.0);
+        
+        this.maxHp = Math.floor(this.maxHp * scaleFactor);
+        this.hp = this.maxHp;
+        this.atk = Math.floor(this.atk * scaleFactor);
+        this.def = Math.floor(this.def * scaleFactor);
+        this.exp = Math.floor(this.exp * scaleFactor);
+        this.gold = Math.floor(this.gold * scaleFactor);
     }
 
     // ダメージを受ける

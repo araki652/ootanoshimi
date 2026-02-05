@@ -53,9 +53,9 @@ const stages = [
             { name: "沼地のスケルトン", maxHp: 130, atk: 40, def: 15, mdef: 10, exp: 50, gold: 40, rate: 45 },
             { name: "ゾンビ", maxHp: 180, atk: 35, def: 20, mdef: 5, exp: 55, gold: 45, rate: 35 },
             { name: "ボーンロード", maxHp: 200, atk: 50, def: 25, mdef: 10, exp: 70, gold: 60, rate: 15 },
-            { name: "古き獣の霊", maxHp: 120, atk: 55, def: 15, mdef: 35, exp: 1000, gold: 800, rate: 5, type: 'rare', dropItems: ['dam1'] }
+            { name: "古き獣の霊", maxHp: 120, atk: 55, def: 15, mdef: 35, exp: 1000, gold: 800, rate: 5, type: 'rare', dropItems: ['dam1', 'das1'] }
         ],
-        boss: { name: "グレイヴライダー", maxHp: 1100, atk: 80, def: 35, mdef: 20, exp: 700, gold: 600, type: 'boss', isBoss: true, dropItems: ['dam1'] }
+        boss: { name: "グレイヴライダー", maxHp: 1100, atk: 80, def: 35, mdef: 20, exp: 700, gold: 600, type: 'boss', isBoss: true, dropItems: ['dam1', 'das1'] }
     },
     {
         name: "氷結の山頂",
@@ -64,9 +64,9 @@ const stages = [
             { name: "アイスジャイアント", maxHp: 200, atk: 60, def: 40, mdef: 15, exp: 65, gold: 55, rate: 40 },
             { name: "フロストウルフ", maxHp: 140, atk: 55, def: 20, mdef: 25, exp: 60, gold: 50, rate: 35 },
             { name: "ブリザード", maxHp: 110, atk: 50, def: 10, mdef: 60, exp: 75, gold: 65, rate: 20 },
-            { name: "霜の女王", maxHp: 150, atk: 45, def: 35, mdef: 70, exp: 1200, gold: 900, rate: 5, type: 'rare', dropItems: ['dpa1'] }
+            { name: "霜の女王", maxHp: 150, atk: 45, def: 35, mdef: 70, exp: 1200, gold: 900, rate: 5, type: 'rare', dropItems: ['dpa1', 'daa1'] }
         ],
-        boss: { name: "アイスドラゴン", maxHp: 1300, atk: 90, def: 40, mdef: 35, exp: 850, gold: 700, type: 'boss', isBoss: true, dropItems: ['dpa1'] }
+        boss: { name: "アイスドラゴン", maxHp: 1300, atk: 90, def: 40, mdef: 35, exp: 850, gold: 700, type: 'boss', isBoss: true, dropItems: ['dpa1', 'daa1'] }
     },
     {
         name: "影の森",
@@ -87,9 +87,9 @@ const stages = [
             { name: "聖なる騎士", maxHp: 280, atk: 75, def: 50, mdef: 30, exp: 100, gold: 85, rate: 40 },
             { name: "天空のウィザード", maxHp: 200, atk: 70, def: 25, mdef: 70, exp: 105, gold: 90, rate: 35 },
             { name: "光の巨人", maxHp: 300, atk: 65, def: 60, mdef: 25, exp: 110, gold: 100, rate: 20 },
-            { name: "星降りの賢者", maxHp: 180, atk: 60, def: 45, mdef: 80, exp: 1800, gold: 1500, rate: 5, type: 'rare', dropItems: ['antiParalysis'] }
+            { name: "星降りの賢者", maxHp: 180, atk: 60, def: 45, mdef: 80, exp: 1800, gold: 1500, rate: 5, type: 'rare', dropItems: ['antiParalysis', 'dbs1'] }
         ],
-        boss: { name: "光の大天使", maxHp: 1800, atk: 120, def: 50, mdef: 50, exp: 1200, gold: 1000, type: 'boss', isBoss: true, dropItems: ['antiParalysis'] }
+        boss: { name: "光の大天使", maxHp: 1800, atk: 120, def: 50, mdef: 50, exp: 1200, gold: 1000, type: 'boss', isBoss: true, dropItems: ['antiParalysis', 'dbs1'] }
     },
     {
         name: "魔王城",
@@ -99,9 +99,29 @@ const stages = [
             { name: "アークデーモン", maxHp: 220, atk: 65, def: 15, mdef: 40, exp: 70, gold: 60, rate: 35 },
             { name: "キラーマシン", maxHp: 300, atk: 70, def: 50, mdef: 20, exp: 90, gold: 70, rate: 25 }
         ],
-        boss: { name: "魔王", maxHp: 2500, atk: 130, def: 60, mdef: 50, exp: 2000, gold: 1500, type: 'boss', isBoss: true, dropItems: ['antiConfusion', 'antiSleep'] }
+        boss: { name: "魔王", maxHp: 2500, atk: 130, def: 60, mdef: 50, exp: 2000, gold: 1500, type: 'boss', isBoss: true, dropItems: ['antiConfusion', 'antiSleep', 'dba1'] }
     }
 ];
+
+
+
+// ニューゲーム+用：敵を強化する関数
+function getScaledEnemy(baseEnemy, loopCount) {
+    if (loopCount === 0) return baseEnemy;
+    
+    // 周回数に応じたスケーリング：1周目+10%, 2周目+20%, 3周目+30%など（最大3倍上限）
+    const scaleFactor = Math.min(1 + (loopCount * 0.1), 3.0);
+    
+    return {
+        ...baseEnemy,
+        maxHp: Math.floor(baseEnemy.maxHp * scaleFactor),
+        atk: Math.floor(baseEnemy.atk * scaleFactor),
+        def: Math.floor(baseEnemy.def * scaleFactor),
+        mdef: Math.floor(baseEnemy.mdef * scaleFactor),
+        exp: Math.floor(baseEnemy.exp * scaleFactor),
+        gold: Math.floor(baseEnemy.gold * scaleFactor)
+    };
+}
 
 // 謎解きデータ
 const riddles = [
@@ -111,3 +131,4 @@ const riddles = [
     { q: "「世界の中心にいる虫は？」", options: ["ハエ", "カ", "クモ"], ans: 1 },
     { q: "「次の数字の並びの最後は？\n1, 1, 2, 3, 5, ...」", options: ["6", "7", "8"], ans: 2 }
 ];
+

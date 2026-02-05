@@ -59,5 +59,7 @@ const statusAilment = {
 const equipmentSets = {
     dragoon: { items: ['dws1', 'dwa1'], bonusAtk: 20, bonusDef: 15 },
     sage: { items: ['dms1', 'dam1'], bonusMatk: 25, bonusMp: 10 },
-    crusader: { items: ['dps1', 'dpa1'], bonusAtk: 15, bonusDef: 25 }
+    crusader: { items: ['dps1', 'dpa1'], bonusAtk: 15, bonusDef: 25 },
+    shadow: { items: ['das1', 'daa1'], bonusAtk: 25, bonusDef: 10 },
+    saint: { items: ['dbs1', 'dba1'], bonusMatk: 20, bonusDef: 20, bonusMp: 15 }
 };

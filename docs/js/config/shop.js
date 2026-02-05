@@ -65,6 +65,8 @@ const shopItems = [
     { id: 'aa2', name: 'シャドウレザー', type: 'def', val: 32, cost: 1200, bought: false, jobs: ['assassin'] },
     { id: 'aa3', name: 'スピードアーマー', type: 'def', val: 55, cost: 3000, bought: false, jobs: ['assassin'] },
     { id: 'asr1', name: '速度の指輪', type: 'atk', val: 20, cost: 850, bought: false, jobs: ['assassin'] },
+    { id: 'das1', name: 'アサシンの爪', type: 'atk', val: 75, cost: 3100, bought: false, jobs: ['assassin'], set: 'shadow' },
+    { id: 'daa1', name: 'シャドウレッグス', type: 'def', val: 50, cost: 2800, bought: false, jobs: ['assassin'], set: 'shadow' },
     
     // ビショップ専用
     { id: 'bb1', name: '司祭の杖', type: 'matk', val: 25, cost: 500, bought: false, jobs: ['bishop'] },
@@ -75,5 +77,7 @@ const shopItems = [
     { id: 'ba3', name: '奇跡のマント', type: 'def', val: 60, cost: 3500, bought: false, jobs: ['bishop'] },
     { id: 'bp1', name: 'MP支援結晶', type: 'mpUp', val: 30, cost: 1500, bought: false, jobs: ['bishop'], repeatable: true },
     { id: 'bp2', name: '無限のマナ', type: 'mpUp', val: 60, cost: 3500, bought: false, jobs: ['bishop'], repeatable: true },
-    { id: 'bsr1', name: '支援者の指輪', type: 'matk', val: 25, cost: 1000, bought: false, jobs: ['bishop'] }
+    { id: 'bsr1', name: '支援者の指輪', type: 'matk', val: 25, cost: 1000, bought: false, jobs: ['bishop'] },
+    { id: 'dbs1', name: '司祭の叡智', type: 'matk', val: 90, cost: 3400, bought: false, jobs: ['bishop'], set: 'saint' },
+    { id: 'dba1', name: '聖衣ガイア', type: 'def', val: 65, cost: 3200, bought: false, jobs: ['bishop'], set: 'saint' }
 ];

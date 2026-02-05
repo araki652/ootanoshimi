@@ -10,6 +10,14 @@ class StatusManager {
         let addDef = 0;
         let addMatk = 0;
         let addMp = 0;
+        let atkMult = 1.0;
+        let defMult = 1.0;
+        let matkMult = 1.0;
+        let hpMult = 1.0;
+        let mpMult = 1.0;
+        let mdefMult = 1.0;
+        let goldMult = 1.0;
+        let expMult = 1.0;
 
         // 装備による能力値加算
         shopItems.forEach(item => {
@@ -22,28 +30,46 @@ class StatusManager {
         });
 
         // 装備セット効果を反映
-        Object.keys(equipmentSets).forEach(setName => {
-            const set = equipmentSets[setName];
-            let matchCount = 0;
-            
-            set.items.forEach(itemId => {
-                const item = shopItems.find(i => i.id === itemId && i.bought);
-                if (item) matchCount++;
-            });
-            
-            // すべてのセットアイテムを装備している場合のみボーナス
-            if (matchCount === set.items.length) {
-                if (set.bonusAtk) addAtk += set.bonusAtk;
-                if (set.bonusDef) addDef += set.bonusDef;
-                if (set.bonusMatk) addMatk += set.bonusMatk;
-                if (set.bonusMp) addMp += set.bonusMp;
+        if (this.player.activeEquipSet) {
+            const set = equipmentSets[this.player.activeEquipSet];
+            if (set) {
+                let matchCount = 0;
+                
+                set.items.forEach(itemId => {
+                    const item = shopItems.find(i => i.id === itemId && i.bought);
+                    if (item) matchCount++;
+                });
+                
+                // すべてのセットアイテムを装備している場合のみボーナス
+                if (matchCount === set.items.length) {
+                    if (set.bonusAtk) addAtk += set.bonusAtk;
+                    if (set.bonusDef) addDef += set.bonusDef;
+                    if (set.bonusMatk) addMatk += set.bonusMatk;
+                    if (set.bonusMp) addMp += set.bonusMp;
+                }
+            }
+        }
+
+        // アーティファクト効果を反映
+        this.player.artifacts.forEach(artifactId => {
+            const artifact = getArtifactById(artifactId);
+            if (artifact && artifact.effect) {
+                if (artifact.effect.atkMult) atkMult *= artifact.effect.atkMult;
+                if (artifact.effect.defMult) defMult *= artifact.effect.defMult;
+                if (artifact.effect.matkMult) matkMult *= artifact.effect.matkMult;
+                if (artifact.effect.hpMult) hpMult *= artifact.effect.hpMult;
+                if (artifact.effect.mpMult) mpMult *= artifact.effect.mpMult;
+                if (artifact.effect.mdefMult) mdefMult *= artifact.effect.mdefMult;
+                if (artifact.effect.goldMult) goldMult *= artifact.effect.goldMult;
+                if (artifact.effect.expMult) expMult *= artifact.effect.expMult;
             }
         });
 
-        this.player.atk = this.player.baseAtk + addAtk;
-        this.player.def = this.player.baseDef + addDef;
-        this.player.matk = this.player.baseMatk + addMatk;
-        this.player.maxMp += addMp;
+        this.player.atk = Math.floor((this.player.baseAtk + addAtk) * atkMult);
+        this.player.def = Math.floor((this.player.baseDef + addDef) * defMult);
+        this.player.matk = Math.floor((this.player.baseMatk + addMatk) * matkMult);
+        this.player.maxMp = Math.floor(this.player.maxMp * mpMult) + addMp;
+        this.player.maxHp = Math.floor(this.player.maxHp * hpMult);
     }
 
     // HP比率を取得（パーセンテージ）
